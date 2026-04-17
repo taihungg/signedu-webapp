@@ -5,6 +5,8 @@ import { supabase } from './lib/supabase';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { Reader } from './pages/Reader';
+import { Dictionary } from './pages/Dictionary';
+import { Courses } from './pages/Courses';
 
 const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
@@ -60,6 +62,14 @@ const App: React.FC = () => {
             <Route 
               path="/story/:id" 
               element={session ? <Reader /> : <Navigate to="/login" replace />} 
+            />
+            <Route 
+              path="/dictionary" 
+              element={session ? <Dictionary /> : <Navigate to="/login" replace />} 
+            />
+            <Route 
+              path="/courses" 
+              element={session ? <Courses /> : <Navigate to="/login" replace />} 
             />
           </Routes>
         </main>
