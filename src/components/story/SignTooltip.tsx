@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Vocabulary } from '../../lib/mockData';
-import { X, PlayCircle, CheckCircle, Circle } from 'lucide-react';
+import { X, CheckCircle, Circle } from 'lucide-react';
 
 interface SignTooltipProps {
   word: string;
@@ -63,11 +63,13 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo, isLea
               )}
             </div>
 
-            <div className="tooltip-meaning flex-between">
+            <div className="tooltip-meaning" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+              {/* 
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <PlayCircle color="#ef4444" size={20} style={{ marginRight: '8px' }} />
                 <p>{vocabInfo.meaning}</p>
               </div>
+              */}
               
               {onToggleLearned && (
                 <button 
@@ -75,7 +77,7 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo, isLea
                   onClick={() => onToggleLearned(word)}
                 >
                   {isLearned ? <CheckCircle size={18} /> : <Circle size={18} />}
-                  <span>{isLearned ? 'Đã học' : 'Đánh dấu'}</span>
+                  <span>{isLearned ? 'Đã học' : 'Đánh dấu đã học'}</span>
                 </button>
               )}
             </div>
