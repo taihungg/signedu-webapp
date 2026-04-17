@@ -13,15 +13,28 @@ export const Reader: React.FC = () => {
   const [story, setStory] = useState<Story | null>(null);
   const [vocabularyMap, setVocabularyMap] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(true);
+  
+  const [sessionUser, setSessionUser] = useState<any>(null);
+  const [learnedWords, setLearnedWords] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchStoryAndVocab = async () => {
       if (!id) return;
       
+      // 1. Get current authenticatd user
+      const { data: { session } } = await supabase.auth.getSession();
+      let currentUser = null;
+      if (session) {
+        currentUser = session.user;
+        setSessionUser(currentUser);
+      }
+      
+      // 2. Fetch the story
       const { data: storyData, error: storyErr } = await supabase.from('stories').select('*').eq('id', id).single();
       if (storyErr) console.error('Error fetching story:', storyErr);
       else setStory(storyData);
       
+      // 3. Fetch vocabulary and progress
       if (storyData && storyData.words && storyData.words.length > 0) {
         const { data: vocabData, error: vocabErr } = await supabase.from('vocabulary').select('*').in('word', storyData.words);
         if (vocabErr) console.error('Error fetching vocab:', vocabErr);
@@ -30,6 +43,19 @@ export const Reader: React.FC = () => {
           vocabData?.forEach(v => vocabRecord[v.word] = { ...v, videoId: v.video_id });
           setVocabularyMap(vocabRecord);
         }
+        
+        // Fetch learned progress for this user
+        if (currentUser) {
+          const { data: progressData, error: progressErr } = await supabase
+            .from('user_vocabulary')
+            .select('word')
+            .eq('user_id', currentUser.id)
+            .in('word', storyData.words);
+            
+          if (!progressErr && progressData) {
+            setLearnedWords(progressData.map(p => p.word));
+          }
+        }
       }
       
       setLoading(false);
@@ -37,13 +63,38 @@ export const Reader: React.FC = () => {
     fetchStoryAndVocab();
   }, [id]);
 
+  const handleToggleLearned = async (word: string) => {
+    if (!sessionUser) return;
+    
+    const isLearned = learnedWords.includes(word);
+    
+    try {
+      if (isLearned) {
+        // Unmark
+        await supabase.from('user_vocabulary').delete().match({ user_id: sessionUser.id, word });
+        setLearnedWords(prev => prev.filter(w => w !== word));
+      } else {
+        // Mark learned
+        await supabase.from('user_vocabulary').insert({ user_id: sessionUser.id, word });
+        setLearnedWords(prev => [...prev, word]);
+      }
+    } catch (err) {
+      console.error('Failed to toggle learned state:', err);
+    }
+  };
+
+  const wordsLearnedInStory = useMemo(() => {
+    if (!story || !story.words) return 0;
+    return story.words.filter(w => learnedWords.includes(w)).length;
+  }, [story, learnedWords]);
+
   // Function to parse the story text and inject Tooltips for keywords
   const renderContent = useMemo(() => {
     if (!story) return null;
     
     const vocabKeys = Object.keys(vocabularyMap);
     if (vocabKeys.length === 0) return <span>{story.content}</span>;
-    // Sort keys by length descending to match longer phrases first (e.g., 'Anh trai' before 'Anh')
+    // Sort keys by length descending to match longer phrases first
     vocabKeys.sort((a, b) => b.length - a.length);
     
     // Create a regex to match any of the keywords
@@ -54,11 +105,19 @@ export const Reader: React.FC = () => {
     
     return parts.map((part, index) => {
       if (vocabKeys.includes(part)) {
-        return <SignTooltip key={index} word={part} vocabInfo={vocabularyMap[part]} />;
+        return (
+          <SignTooltip 
+            key={index} 
+            word={part} 
+            vocabInfo={vocabularyMap[part]} 
+            isLearned={learnedWords.includes(part)}
+            onToggleLearned={sessionUser ? handleToggleLearned : undefined}
+          />
+        );
       }
       return <span key={index}>{part}</span>;
     });
-  }, [story, vocabularyMap]);
+  }, [story, vocabularyMap, learnedWords, sessionUser]);
 
   if (loading) {
     return (
@@ -84,7 +143,7 @@ export const Reader: React.FC = () => {
           <ArrowLeft size={20} /> Quay lại
         </button>
         <span className="chapter-badge badge badge-full">
-          Chương {story.chapter} / {story.totalChapters}
+          Chương {story.chapter} / {story.total_chapters || story.totalChapters}
         </span>
       </div>
 
@@ -106,10 +165,10 @@ export const Reader: React.FC = () => {
 
       <div className="reader-footer flex-between">
         <div className="progress-info">
-          Tiến trình bài học: <strong>{story.wordsLearned}/{story.totalWords}</strong> từ đã học
+          Tiến trình bài học: <strong>{wordsLearnedInStory}/{story.total_words || story.totalWords}</strong> từ đã học
         </div>
-        <button className="btn btn-primary">
-          Hoàn thành bài học
+        <button className={`btn ${wordsLearnedInStory === (story.total_words || story.totalWords) ? 'btn-primary' : 'btn-outline'}`}>
+          {wordsLearnedInStory === (story.total_words || story.totalWords) ? 'Hoàn thành xuất sắc!' : 'Hoàn thành bài học'}
         </button>
       </div>
 
@@ -193,6 +252,7 @@ export const Reader: React.FC = () => {
           background: #fff;
           border-radius: var(--radius-lg);
           box-shadow: var(--shadow-sm);
+          align-items: center;
         }
         .progress-info {
           font-size: 1.1rem;

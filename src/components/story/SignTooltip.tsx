@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import type { Vocabulary } from '../../lib/mockData';
-import { X, PlayCircle } from 'lucide-react';
+import { X, PlayCircle, CheckCircle, Circle } from 'lucide-react';
 
 interface SignTooltipProps {
   word: string;
   vocabInfo: Vocabulary | null;
+  isLearned?: boolean;
+  onToggleLearned?: (word: string) => void;
 }
 
-export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo }) => {
+export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo, isLearned = false, onToggleLearned }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   if (!vocabInfo) {
@@ -17,7 +19,7 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo }) => 
   return (
     <span className="tooltip-container">
       <span
-        className="keyword-highlight"
+        className={`keyword-highlight ${isLearned ? 'keyword-learned' : ''}`}
         onClick={() => setIsOpen(true)}
       >
         {word}
@@ -47,9 +49,21 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo }) => 
               ></iframe>
             </div>
 
-            <div className="tooltip-meaning flex-center">
-              <PlayCircle color="#ef4444" size={20} style={{ marginRight: '8px' }} />
-              <p>{vocabInfo.meaning}</p>
+            <div className="tooltip-meaning flex-between">
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <PlayCircle color="#ef4444" size={20} style={{ marginRight: '8px' }} />
+                <p>{vocabInfo.meaning}</p>
+              </div>
+              
+              {onToggleLearned && (
+                <button 
+                  className={`btn-learned ${isLearned ? 'learned-active' : ''}`}
+                  onClick={() => onToggleLearned(word)}
+                >
+                  {isLearned ? <CheckCircle size={18} /> : <Circle size={18} />}
+                  <span>{isLearned ? 'Đã học' : 'Đánh dấu'}</span>
+                </button>
+              )}
             </div>
           </div>
         </>
@@ -78,6 +92,16 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo }) => 
           color: #fff;
         }
         
+        .keyword-learned {
+          background-color: #dcfce7 !important;
+          color: #166534 !important;
+          text-decoration-color: #22c55e !important;
+        }
+        .keyword-learned:hover {
+          background-color: #22c55e !important;
+          color: #fff !important;
+        }
+        
         .tooltip-overlay {
           position: fixed;
           top: 0;
@@ -92,7 +116,7 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo }) => 
           bottom: calc(100% + 12px);
           left: 50%;
           transform: translateX(-50%) !important;
-          width: 340px;
+          width: 360px;
           padding: 16px;
           z-index: 101;
           box-shadow: var(--shadow-lg);
@@ -164,17 +188,44 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo }) => 
         }
         
         .tooltip-meaning {
-          justify-content: flex-start;
+          align-items: center;
           font-size: 0.95rem;
           color: var(--text-main);
           font-weight: 500;
-          padding: 8px;
+          padding: 8px 12px;
           background: var(--bg-color);
           border-radius: var(--radius-sm);
         }
         .tooltip-meaning p {
           margin: 0;
           color: var(--text-main);
+        }
+        
+        .btn-learned {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: #f1f5f9;
+          border: 1px solid #cbd5e1;
+          color: #475569;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .btn-learned:hover {
+          background: #e2e8f0;
+          color: #334155;
+        }
+        .btn-learned.learned-active {
+          background: #dcfce7;
+          border-color: #22c55e;
+          color: #166534;
+        }
+        .btn-learned.learned-active:hover {
+          background: #bbf7d0;
         }
       `}</style>
     </span>

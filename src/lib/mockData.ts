@@ -4,9 +4,12 @@ export interface Story {
   description: string;
   chapter: number;
   totalChapters: number;
+  total_chapters?: number;
   isNew: boolean;
   wordsLearned: number;
+  words_learned?: number;
   totalWords: number;
+  total_words?: number;
   content: string;
   words?: string[];
 }
