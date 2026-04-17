@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Flame, CheckCircle, PlaySquare, BookOpen } from 'lucide-react';
+import { Flame } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import type { Story } from '../lib/mockData';
 
@@ -9,15 +9,47 @@ export const Dashboard: React.FC = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'new' | 'all'>('new');
+  
+  // Streak state
+  const [streakDays, setStreakDays] = useState<number>(0);
 
   useEffect(() => {
-    const fetchStories = async () => {
+    const fetchData = async () => {
+      // Get session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session) {
+        // Handle consecutive streak days using localStorage
+        const lastLoginStr = localStorage.getItem('lastLoginDate');
+        let currentStreak = parseInt(localStorage.getItem('userStreak') || '0', 10);
+        const today = new Date().toDateString();
+        
+        if (lastLoginStr !== today) {
+           const lastLogin = new Date(lastLoginStr || '');
+           const yesterdayDate = new Date();
+           yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+           
+           if (lastLogin.toDateString() === yesterdayDate.toDateString()) {
+              currentStreak += 1;
+           } else if (!lastLoginStr) {
+              currentStreak = 1;
+           } else {
+              currentStreak = 1; // Broken streak
+           }
+           localStorage.setItem('lastLoginDate', today);
+           localStorage.setItem('userStreak', currentStreak.toString());
+        }
+        setStreakDays(currentStreak);
+      }
+
+      // Fetch stories
       const { data, error } = await supabase.from('stories').select('*').order('chapter', { ascending: true });
       if (error) console.error('Error fetching stories:', error);
       else setStories(data || []);
+      
       setLoading(false);
     };
-    fetchStories();
+    fetchData();
   }, []);
 
   return (
@@ -71,29 +103,14 @@ export const Dashboard: React.FC = () => {
             <h3 className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
               <Flame color="#ef4444" fill="#ef4444" size={24} /> Chuỗi học tập
             </h3>
-            <p className="streak-count">Bạn đang có: <strong>5 ngày liên tiếp</strong></p>
-            <div className="fire-emojis">🔥 🔥 🔥 🔥 🔥</div>
-            <p className="streak-sub">Giữ streak để không bị mất</p>
-          </div>
-
-          <div className="sidebar-widget glass-panel review-widget">
-            <h3 className="flex-center" style={{ justifyContent: 'flex-start', gap: '8px' }}>
-              <BookOpen size={20} className="text-secondary" /> Ôn tập hôm nay
-            </h3>
-            <p>Bạn có <strong>6 từ</strong> cần ôn</p>
-            <button className="btn btn-secondary review-btn">Bắt đầu ôn tập</button>
-            
-            <div className="flashcard-preview">
-              <span className="text-muted">Flashcard 1/6</span>
-              <div className="flashcard">
-                <h4>Xin chào</h4>
-                <button className="btn btn-outline flip-btn">Lật thẻ</button>
-              </div>
-              <div className="flashcard-actions">
-                <button className="btn btn-success"><CheckCircle size={16}/> Đã nhớ</button>
-                <button className="btn btn-danger"><PlaySquare size={16}/> Chưa nhớ</button>
-              </div>
+            <p className="streak-count">Bạn đang có: <strong>{streakDays} ngày liên tiếp</strong></p>
+            <div className="fire-emojis">
+              {Array.from({ length: Math.min(streakDays, 7) }).map((_, i) => (
+                <span key={i}>🔥 </span>
+              ))}
+              {streakDays === 0 && <span className="text-muted" style={{ fontSize: '1rem', letterSpacing: 'normal' }}>Học ngay hôm nay nhé!</span>}
             </div>
+            <p className="streak-sub">Giữ streak để không bị mất</p>
           </div>
         </div>
       </div>
@@ -227,57 +244,6 @@ export const Dashboard: React.FC = () => {
           font-size: 0.9rem;
           color: var(--text-muted);
         }
-        
-        .review-widget h3 {
-          color: #4338ca;
-          margin-bottom: 8px;
-        }
-        .review-btn {
-          width: 100%;
-          margin: 16px 0;
-          background-color: #fde047; /* yellow */
-          box-shadow: 0 4px 0 #ca8a04;
-          transform: translateY(0);
-        }
-        .review-btn:hover {
-          box-shadow: 0 2px 0 #ca8a04;
-          transform: translateY(2px);
-        }
-        
-        .flashcard-preview {
-          background: var(--bg-color);
-          padding: 16px;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-color);
-        }
-        .flashcard {
-          background: #fff;
-          padding: 24px 0;
-          text-align: center;
-          border-radius: var(--radius-sm);
-          margin: 12px 0;
-          box-shadow: var(--shadow-sm);
-        }
-        .flashcard h4 {
-          font-size: 1.5rem;
-          color: #4338ca;
-          margin-bottom: 12px;
-        }
-        .flip-btn {
-          background: #eef2ff;
-          border: none;
-          color: #4338ca;
-          padding: 8px 32px;
-        }
-        
-        .flashcard-actions {
-          display: flex;
-          gap: 8px;
-        }
-        .btn-success { background: #22c55e; color: #fff; border: none; flex: 1; }
-        .btn-danger { background: #ef4444; color: #fff; border: none; flex: 1; }
-        
-        .text-secondary { color: var(--secondary-hover); }
       `}</style>
     </div>
   );
