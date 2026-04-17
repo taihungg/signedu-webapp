@@ -37,16 +37,30 @@ export const SignTooltip: React.FC<SignTooltipProps> = ({ word, vocabInfo, isLea
             </div>
 
             <div className="video-container">
-              <iframe
-                width="100%"
-                height="100%"
-                src={`https://www.youtube.com/embed/${vocabInfo.videoId}?autoplay=1&mute=1&loop=1&playlist=${vocabInfo.videoId}&controls=0&rel=0&modestbranding=1&playsinline=1`}
-                title="Sign Language Video"
-                frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                referrerPolicy="strict-origin-when-cross-origin"
-                allowFullScreen
-              ></iframe>
+              {vocabInfo.videoId.endsWith('.mov') || vocabInfo.videoId.endsWith('.mp4') ? (
+                <video
+                  src={`/videos/${vocabInfo.videoId}`}
+                  width="100%"
+                  height="100%"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  controls={false}
+                  style={{ objectFit: 'cover', borderRadius: 'inherit' }}
+                />
+              ) : (
+                <iframe
+                  width="100%"
+                  height="100%"
+                  src={`https://www.youtube.com/embed/${vocabInfo.videoId}?autoplay=1&mute=1&loop=1&playlist=${vocabInfo.videoId}&controls=0&rel=0&modestbranding=1&playsinline=1`}
+                  title="Sign Language Video"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                ></iframe>
+              )}
             </div>
 
             <div className="tooltip-meaning flex-between">
