@@ -97,8 +97,10 @@ export const Reader: React.FC = () => {
     // Sort keys by length descending to match longer phrases first
     vocabKeys.sort((a, b) => b.length - a.length);
     
-    // Create a regex to match any of the keywords
-    const regex = new RegExp(`(${vocabKeys.join('|')})`, 'g');
+    // Create a regex to match keywords wrapped in underscores, e.g., _keyword_
+    // Using a capture group inside the underscores ensures they are removed from the split array!
+    const escapedKeys = vocabKeys.map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const regex = new RegExp(`_(${escapedKeys.join('|')})_`, 'g');
     
     // Split the text by the keywords
     const parts = story.content.split(regex);
