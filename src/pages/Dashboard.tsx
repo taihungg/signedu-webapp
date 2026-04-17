@@ -8,6 +8,7 @@ export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'new' | 'all'>('new');
 
   useEffect(() => {
     const fetchStories = async () => {
@@ -27,8 +28,18 @@ export const Dashboard: React.FC = () => {
       </div>
 
       <div className="dashboard-tabs">
-        <button className="tab active">Bài học mới nhất</button>
-        <button className="tab">Tất cả</button>
+        <button 
+          className={`tab ${activeTab === 'new' ? 'active' : ''}`}
+          onClick={() => setActiveTab('new')}
+        >
+          Bài học mới nhất
+        </button>
+        <button 
+          className={`tab ${activeTab === 'all' ? 'active' : ''}`}
+          onClick={() => setActiveTab('all')}
+        >
+          Tất cả
+        </button>
       </div>
 
       <div className="dashboard-grid">
