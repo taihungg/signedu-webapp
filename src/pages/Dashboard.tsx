@@ -48,15 +48,7 @@ export const Dashboard: React.FC = () => {
                     <h3>{story.title}</h3>
                     <p>{story.description}</p>
                   </div>
-                  <div className="story-stats">
-                    <span className="chapter-label">Chương {story.chapter} <span className="badge badge-full">Full</span></span>
-                    <div className="progress-dots">
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <span key={i} className={`dot ${i < 2 ? 'dot-active' : ''}`} />
-                      ))}
-                    </div>
-                    <span className="words-learned">{story.wordsLearned}/{story.totalWords} từ đã học</span>
-                  </div>
+
                 </div>
               </div>
             ))
@@ -199,37 +191,8 @@ export const Dashboard: React.FC = () => {
           color: #4338ca;
           margin-bottom: 4px;
         }
-        .story-stats {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 8px;
-        }
-        .chapter-label {
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: var(--text-muted);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .progress-dots {
-          display: flex;
-          gap: 4px;
-        }
-        .dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: #e2e8f0;
-        }
-        .dot-active {
-          background: #4ade80;
-        }
-        .words-learned {
-          font-size: 0.8rem;
-          color: var(--text-muted);
-        }
+
+
         
         .sidebar {
           display: flex;

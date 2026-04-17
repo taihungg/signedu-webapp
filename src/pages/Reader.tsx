@@ -142,9 +142,6 @@ export const Reader: React.FC = () => {
         <button className="btn-back" onClick={() => navigate('/dashboard')}>
           <ArrowLeft size={20} /> Quay lại
         </button>
-        <span className="chapter-badge badge badge-full">
-          Chương {story.chapter} / {story.total_chapters || story.totalChapters}
-        </span>
       </div>
 
       <div className="reader-hero">
@@ -163,14 +160,7 @@ export const Reader: React.FC = () => {
         </div>
       </div>
 
-      <div className="reader-footer flex-between">
-        <div className="progress-info">
-          Tiến trình bài học: <strong>{wordsLearnedInStory}/{story.total_words || story.totalWords}</strong> từ đã học
-        </div>
-        <button className={`btn ${wordsLearnedInStory === (story.total_words || story.totalWords) ? 'btn-primary' : 'btn-outline'}`}>
-          {wordsLearnedInStory === (story.total_words || story.totalWords) ? 'Hoàn thành xuất sắc!' : 'Hoàn thành bài học'}
-        </button>
-      </div>
+
 
       <style>{`
         .reader-page {
@@ -197,14 +187,7 @@ export const Reader: React.FC = () => {
         .btn-back:hover {
           color: var(--primary-hover);
         }
-        .chapter-badge {
-          background-color: var(--secondary-light);
-          color: #854d0e;
-          border: 1px solid var(--secondary);
-          padding: 6px 12px;
-          border-radius: var(--radius-full);
-          font-weight: 600;
-        }
+
         
         .reader-hero {
           margin-bottom: 32px;
@@ -247,32 +230,12 @@ export const Reader: React.FC = () => {
           color: var(--text-main);
         }
         
-        .reader-footer {
-          padding: 24px;
-          background: #fff;
-          border-radius: var(--radius-lg);
-          box-shadow: var(--shadow-sm);
-          align-items: center;
-        }
-        .progress-info {
-          font-size: 1.1rem;
-          color: var(--text-muted);
-        }
-        .progress-info strong {
-          color: var(--success);
-        }
-        
         @media (max-width: 600px) {
           .reader-content-box {
             padding: 24px 16px;
           }
           .story-text {
             font-size: 1.25rem;
-          }
-          .reader-footer {
-            flex-direction: column;
-            gap: 16px;
-            align-items: flex-start;
           }
         }
       `}</style>
