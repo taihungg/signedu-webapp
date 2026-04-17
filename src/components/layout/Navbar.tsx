@@ -47,10 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({ isAuthenticated, onLogout }) => 
               </button>
             </>
           ) : (
-            <>
-              <button className="nav-item">Hiểu về người Điếc</button>
-              <button className="nav-item">Dịch vụ</button>
-            </>
+            <></>
           )}
         </div>
         

@@ -22,7 +22,6 @@ export const Login: React.FC = () => {
     <div className="login-page flex-center animate-fade-in">
       <div className="login-card glass-panel">
         <div className="login-header">
-          <div className="logo-icon">👋</div>
           <h1>Đăng nhập SignEdu</h1>
           <p>Chào mừng bạn trở lại! Vui lòng đăng nhập bằng tài khoản Google để tiếp tục.</p>
         </div>
