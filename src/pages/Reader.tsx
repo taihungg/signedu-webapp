@@ -83,11 +83,6 @@ export const Reader: React.FC = () => {
     }
   };
 
-  const wordsLearnedInStory = useMemo(() => {
-    if (!story || !story.words) return 0;
-    return story.words.filter(w => learnedWords.includes(w)).length;
-  }, [story, learnedWords]);
-
   // Function to parse the story text and inject Tooltips for keywords
   const renderContent = useMemo(() => {
     if (!story) return null;
